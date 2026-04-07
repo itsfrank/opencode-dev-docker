@@ -1,8 +1,10 @@
 services:
   opencode:
     build:
-      context: ..
-      dockerfile: docker-dev/Dockerfile.generated
+      context: .
+      dockerfile: Dockerfile
+      args:
+        OPENCODE_TAG: ${OPENCODE_TAG:-latest}
     image: opencode-dev:local
     working_dir: /workspace
     stdin_open: true
@@ -10,7 +12,7 @@ services:
     ports:
       - "4096:4096"
     volumes:
-      - ..:/workspace
+      - .:/workspace
       - opencode-home:/root/.local/share/opencode
     command: ["serve", "--hostname", "0.0.0.0", "--port", "4096", "--print-logs"]
 

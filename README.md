@@ -1,54 +1,40 @@
 # docker-dev
 
-Self-contained development image template and generator for OpenCode Linux releases.
-
-The folder is portable: copy it into another repo and run it independently.
+Self-contained development image template for OpenCode Linux releases.
 
 ## Files
 
-- `Dockerfile`: maintainable base dev image with Node, Bun, Rust, and common tooling
-- `generate.ts`: resolves a GitHub release asset for a tag and writes a pinned Dockerfile
-- `compose.yaml`: local dev setup that mounts the parent repo at `/workspace`
+- `Dockerfile`: development image with Node, Bun, Rust, and common tooling
+- `compose.yaml`: local dev setup that mounts this repository at `/workspace`
 
 ## Requirements
 
-- Bun on the host to run `generate.ts`
-- Docker to build the generated image
+- Docker to build the image
 
 ## Quick start
 
-Generate a pinned Dockerfile for the latest x64 glibc release:
+Build the image with the latest OpenCode release:
 
 ```bash
-cd docker-dev
-bun ./generate.ts
+docker build -f Dockerfile -t opencode-dev:latest .
 ```
 
-Generate for a specific tag:
+Build the image with a specific tag:
 
 ```bash
-cd docker-dev
-bun ./generate.ts --tag v1.3.17 --arch x64
+docker build -f Dockerfile -t opencode-dev:v1.3.17 --build-arg OPENCODE_TAG=v1.3.17 .
 ```
 
-Generate for arm64:
+Run with Compose (defaults to latest):
 
 ```bash
-cd docker-dev
-bun ./generate.ts --tag v1.3.17 --arch arm64
+docker compose up --build
 ```
 
-Generate for musl:
+Run with a specific tag:
 
 ```bash
-cd docker-dev
-bun ./generate.ts --tag v1.3.17 --arch x64 --libc musl
-```
-
-Build the generated image:
-
-```bash
-docker build -f docker-dev/Dockerfile.generated -t opencode-dev:v1.3.17 .
+OPENCODE_TAG=v1.3.17 docker compose up --build
 ```
 
 Run it directly:
@@ -58,44 +44,23 @@ docker run --rm -it \
   -p 4096:4096 \
   -v "$PWD:/workspace" \
   -w /workspace \
-  opencode-dev:v1.3.17 \
+  opencode-dev:latest \
   serve --hostname 0.0.0.0 --port 4096 --print-logs
 ```
 
-Run it with Compose from the `docker-dev/` directory:
-
-```bash
-docker compose up --build
-```
-
-The compose file assumes `docker-dev/` lives inside the repo you want to mount, and mounts the parent directory into `/workspace`.
-
-## Typical flow
-
-```bash
-cd docker-dev
-bun ./generate.ts --tag v1.3.17 --arch x64
-docker compose up --build
-```
-
-Then connect to the server on port `4096`.
+The compose file builds from this directory and mounts the current repository into `/workspace`.
 
 ## Different repo
 
-If another repo publishes the same Linux asset names, pass `--repo owner/name`:
+Copy these files into the root of the repository you want to work in, or update the build context and volume paths in `compose.yaml`.
 
-```bash
-bun ./generate.ts --repo owner/name --tag v1.2.3
-```
+If another repo publishes the same release asset names, change `OPENCODE_REPO` in `Dockerfile`.
 
 ## Customizing tooling
 
 Edit `Dockerfile` directly to add more packages, browsers, SDKs, or language toolchains.
 
-Then regenerate `Dockerfile.generated` to pin a specific OpenCode binary URL and sha256.
-
 ## Notes
 
-- Default target is Linux glibc because native PTY support is more reliable there than on musl.
-- `compose.yaml` builds from `Dockerfile.generated`, so run `generate.ts` first.
-- If you move this folder to another repo, keep it at the repo root or update `compose.yaml` paths.
+- Default target is Linux glibc x64 because native PTY support is more reliable there than on musl.
+- If you move these files into another repo, keep them at the repo root or update `compose.yaml` paths.

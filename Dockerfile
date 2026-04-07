@@ -5,9 +5,7 @@ ARG NODE_VERSION=24.4.0
 ARG BUN_VERSION=1.3.11
 ARG RUST_TOOLCHAIN=stable
 ARG OPENCODE_TAG=latest
-ARG OPENCODE_ASSET=opencode-linux-x64.tar.gz
-ARG OPENCODE_URL=https://github.com/anomalyco/opencode/releases/latest/download/opencode-linux-x64.tar.gz
-ARG OPENCODE_SHA256=
+ARG OPENCODE_REPO=https://github.com/anomalyco/opencode/releases
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
@@ -45,8 +43,12 @@ RUN curl -fsSL https://bun.sh/install | bash -s -- "bun-v${BUN_VERSION}"
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --profile minimal --default-toolchain ${RUST_TOOLCHAIN}
 
-RUN curl -fsSL "$OPENCODE_URL" -o /tmp/opencode.tgz \
-  && if [ -n "$OPENCODE_SHA256" ]; then echo "$OPENCODE_SHA256  /tmp/opencode.tgz" | sha256sum -c -; fi \
+RUN if [ "$OPENCODE_TAG" = "latest" ]; then \
+    opencode_url="${OPENCODE_REPO}/latest/download/opencode-linux-x64.tar.gz"; \
+  else \
+    opencode_url="${OPENCODE_REPO}/download/${OPENCODE_TAG}/opencode-linux-x64.tar.gz"; \
+  fi \
+  && curl -fsSL "$opencode_url" -o /tmp/opencode.tgz \
   && tar -xzf /tmp/opencode.tgz -C /tmp \
   && install -m 0755 /tmp/opencode /usr/local/bin/opencode \
   && rm -f /tmp/opencode /tmp/opencode.tgz \
