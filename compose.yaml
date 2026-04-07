@@ -1,0 +1,18 @@
+services:
+  opencode:
+    build:
+      context: ..
+      dockerfile: docker-dev/Dockerfile.generated
+    image: opencode-dev:local
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    ports:
+      - "4096:4096"
+    volumes:
+      - ..:/workspace
+      - opencode-home:/root/.local/share/opencode
+    command: ["serve", "--hostname", "0.0.0.0", "--port", "4096", "--print-logs"]
+
+volumes:
+  opencode-home:
