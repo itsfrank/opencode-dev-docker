@@ -1,11 +1,11 @@
 # docker-dev
 
-Self-contained development image template for OpenCode Linux releases.
+Self-contained Arch Linux development image template for OpenCode Linux releases.
 
 ## Files
 
-- `Dockerfile`: development image with Node, Bun, Rust, and common tooling
-- `compose.yaml`: local dev setup that mounts this repository at `/workspace`
+- `Dockerfile`: Arch Linux development image with Node, Bun, Rust, and common tooling
+- `compose.yaml`: local dev setup that mounts `WORKSPACE_DIR` at `/workspace`
 
 ## Requirements
 
@@ -28,13 +28,13 @@ docker build -f Dockerfile -t opencode-dev:v1.3.17 --build-arg OPENCODE_TAG=v1.3
 Run with Compose (defaults to latest):
 
 ```bash
-docker compose up --build
+WORKSPACE_DIR=$HOME/workspace UID=$(id -u) GID=$(id -g) docker compose up --build
 ```
 
 Run with a specific tag:
 
 ```bash
-OPENCODE_TAG=v1.3.17 docker compose up --build
+WORKSPACE_DIR=$HOME/workspace UID=$(id -u) GID=$(id -g) OPENCODE_TAG=v1.3.17 docker compose up --build
 ```
 
 Run it directly:
@@ -48,17 +48,29 @@ docker run --rm -it \
   serve --hostname 0.0.0.0 --port 4096 --print-logs
 ```
 
-The compose file builds from this directory and mounts the current repository into `/workspace`.
+The compose file builds from this directory, mounts `WORKSPACE_DIR` into `/workspace`, and runs the container with the host UID/GID.
+
+If `WORKSPACE_DIR` is not set, it falls back to the compose file directory.
+
+The container home directory is `/home/opencode`, separate from `/workspace`, so your repo parent directory can stay dedicated to repositories.
+
+OpenCode config and data are stored in your host user's normal XDG locations so they persist across container restarts.
+
+- Host config directory: `${HOME}/.config/opencode`
+- Host config file: `${HOME}/.config/opencode/opencode.json`
+- Host data directory: `${HOME}/.local/share/opencode`
+
+Persisting `${HOME}/.local/share/opencode` keeps OpenAI authentication between sessions.
 
 ## Different repo
 
-Copy these files into the root of the repository you want to work in, or update the build context and volume paths in `compose.yaml`.
+Copy these files into any directory and set `WORKSPACE_DIR` to the parent folder containing the repositories you want available inside the container.
 
 If another repo publishes the same release asset names, change `OPENCODE_REPO` in `Dockerfile`.
 
 ## Customizing tooling
 
-Edit `Dockerfile` directly to add more packages, browsers, SDKs, or language toolchains.
+Edit `Dockerfile` directly to add more `pacman` packages, browsers, SDKs, or language toolchains.
 
 ## Notes
 

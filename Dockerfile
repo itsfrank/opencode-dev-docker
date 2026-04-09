@@ -1,29 +1,26 @@
-FROM ubuntu:24.04
+FROM archlinux:latest
 
-ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=24.4.0
 ARG BUN_VERSION=1.3.11
 ARG RUST_TOOLCHAIN=stable
 ARG OPENCODE_TAG=latest
 ARG OPENCODE_REPO=https://github.com/anomalyco/opencode/releases
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-    build-essential \
+RUN pacman -Syu --noconfirm --needed \
+    base-devel \
     ca-certificates \
     curl \
     git \
     jq \
-    openssh-client \
+    openssh \
     pkg-config \
-    python3 \
-    python3-pip \
-    python3-venv \
+    python \
+    python-pip \
     ripgrep \
     unzip \
-    xz-utils \
+    xz \
     zip \
-  && rm -rf /var/lib/apt/lists/*
+  && pacman -Scc --noconfirm
 
 SHELL ["/bin/bash", "-lc"]
 
@@ -54,6 +51,9 @@ RUN if [ "$OPENCODE_TAG" = "latest" ]; then \
   && rm -f /tmp/opencode /tmp/opencode.tgz \
   && opencode --version
 
-WORKDIR /workspace
+WORKDIR /workspace/repos
+
+RUN mkdir -p /home/opencode/.cache /home/opencode/.config /home/opencode/.local/share && \
+    chown -R 1000:1000 /home/opencode
 
 ENTRYPOINT ["opencode"]

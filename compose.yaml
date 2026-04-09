@@ -6,15 +6,19 @@ services:
       args:
         OPENCODE_TAG: ${OPENCODE_TAG:-latest}
     image: opencode-dev:local
+    user: "${UID:-1000}:${GID:-1000}"
     working_dir: /workspace
     stdin_open: true
     tty: true
+    environment:
+      HOME: /workspace/home
+      XDG_CONFIG_HOME: /workspace/home/.config
+      XDG_DATA_HOME: /home/opencode/.local/share
     ports:
       - "4096:4096"
+      - "7000-7010:7000-7010"
     volumes:
-      - .:/workspace
-      - opencode-home:/root/.local/share/opencode
+      - ${WORKSPACE_DIR:-.}:/workspace/repos
+      - ${HOME}/.config/opencode:/home/opencode/.config/opencode
+      - ${HOME}/.local/share/opencode:/home/opencode/.local/share/opencode
     command: ["serve", "--hostname", "0.0.0.0", "--port", "4096", "--print-logs"]
-
-volumes:
-  opencode-home:
