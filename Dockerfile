@@ -53,7 +53,4 @@ RUN if [ "$OPENCODE_TAG" = "latest" ]; then \
 
 WORKDIR /workspace/repos
 
-RUN mkdir -p /home/opencode/.cache /home/opencode/.config /home/opencode/.local/share && \
-    chown -R 1000:1000 /home/opencode
-
 ENTRYPOINT ["opencode"]

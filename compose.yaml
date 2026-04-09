@@ -11,14 +11,14 @@ services:
     stdin_open: true
     tty: true
     environment:
-      HOME: /home/opencode
-      XDG_CONFIG_HOME: /home/opencode/.config
-      XDG_DATA_HOME: /home/opencode/.local/share
+      HOME: /tmp/opencode-home
+      XDG_CONFIG_HOME: /tmp/opencode-home/.config
+      XDG_DATA_HOME: /tmp/opencode-home/.local/share
     ports:
       - "4096:4096"
       - "7000-7010:7000-7010"
     volumes:
       - ${WORKSPACE_DIR:-.}:/workspace/repos
-      - ${HOME}/.config/opencode:/home/opencode/.config/opencode
-      - ${HOME}/.local/share/opencode:/home/opencode/.local/share/opencode
+      - ${HOME}/.config/opencode:/tmp/opencode-home/.config/opencode
+      - ${HOME}/.local/share/opencode:/tmp/opencode-home/.local/share/opencode
     command: ["serve", "--hostname", "0.0.0.0", "--port", "4096", "--print-logs"]

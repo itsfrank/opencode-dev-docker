@@ -48,13 +48,13 @@ docker run --rm -it \
   serve --hostname 0.0.0.0 --port 4096 --print-logs
 ```
 
-The compose file builds from this directory, mounts `WORKSPACE_DIR` into `/workspace`, and runs the container with the host UID/GID.
+The compose file builds from this directory, mounts `WORKSPACE_DIR` into `/workspace/repos`, and runs the container with the host UID/GID.
 
 If `WORKSPACE_DIR` is not set, it falls back to the compose file directory.
 
-The container home directory is `/home/opencode`, separate from `/workspace`, so your repo parent directory can stay dedicated to repositories.
+The container home directory is `/tmp/opencode-home`, which is writable for arbitrary Linux UIDs while staying separate from `/workspace/repos`.
 
-OpenCode config and data are stored in your host user's normal XDG locations so they persist across container restarts.
+OpenCode config and data are mounted from your host user's normal XDG locations into that runtime home so they persist across container restarts.
 
 - Host config directory: `${HOME}/.config/opencode`
 - Host config file: `${HOME}/.config/opencode/opencode.json`
