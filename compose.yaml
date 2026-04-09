@@ -7,12 +7,12 @@ services:
         OPENCODE_TAG: ${OPENCODE_TAG:-latest}
     image: opencode-dev:local
     user: "${UID:-1000}:${GID:-1000}"
-    working_dir: /workspace
+    working_dir: /workspace/repos
     stdin_open: true
     tty: true
     environment:
-      HOME: /workspace/home
-      XDG_CONFIG_HOME: /workspace/home/.config
+      HOME: /home/opencode
+      XDG_CONFIG_HOME: /home/opencode/.config
       XDG_DATA_HOME: /home/opencode/.local/share
     ports:
       - "4096:4096"
